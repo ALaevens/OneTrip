@@ -23,6 +23,6 @@ class UserSerializer(serializers.ModelSerializer):  # https://stackoverflow.com/
 
     class Meta:
         model = User
-        fields = ("id", "username", "email", "password")
+        fields = ("id", "username", "first_name", "last_name", "password", "image", "homegroup", "homegroup_invites")
         write_only_fields = ("password",)
-        read_only_fields = ("id",)
+        read_only_fields = ("id", "homegroup_invites")

@@ -14,3 +14,7 @@ class IngredientView(viewsets.ModelViewSet):
 class HomegroupView(viewsets.ModelViewSet):
     serializer_class = HomegroupSerializer
     queryset = Homegroup.objects.all()
+
+class HomegroupInviteView(viewsets.ModelViewSet):
+    serializer_class = InviteSerializer
+    queryset = HomegroupInvite.objects.all()

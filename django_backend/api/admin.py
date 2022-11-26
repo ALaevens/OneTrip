@@ -22,6 +22,10 @@ class UserInline(nested_admin.NestedTabularInline):
     def has_delete_permission(self, request, obj=None):
         return False
 
+class HomegroupInviteInline(nested_admin.NestedTabularInline):
+    model = HomegroupInvite
+    extra = 0
+
 class RecipeInline(nested_admin.NestedTabularInline):
     model = Recipe
     inlines = (IngredientInline,)
@@ -35,9 +39,9 @@ class RecipeAdmin(nested_admin.NestedModelAdmin):
 @admin.register(Homegroup)
 class HomegroupAdmin(nested_admin.NestedModelAdmin):
     list_display = ("id", "name")
-    inlines = (UserInline, RecipeInline, IngredientInline)
+    inlines = (UserInline, HomegroupInviteInline, RecipeInline, IngredientInline)
 
 @admin.register(List)
 class ListAdmin(nested_admin.NestedModelAdmin):
-    list_display = ("id",)
+    list_display = ("homegroup",)
     inlines = (RecipeInline, IngredientInline)

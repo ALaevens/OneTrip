@@ -13,15 +13,29 @@ class Ingredient(models.Model):
     name = models.CharField(max_length=50)
     in_stock = models.BooleanField(default=False)
 
-class List(models.Model):
-    # Foreign Key Recipe -> List [as recipes]
-    extra_ingredients = GenericRelation(Ingredient, related_query_name="extra_ingredients")
+class HomegroupInvite(models.Model):
+    homegroup = models.ForeignKey("api.Homegroup", on_delete=models.CASCADE, related_name="invites", blank=True)
+    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="invites", blank=True)
 
+    class Meta:
+        unique_together = ("homegroup", "user")
 
 class Homegroup(models.Model):
     # Foreign Key Recipe -> Homegroup [as recipes]
     # Foreign Key User -> Homegroup [as users]
     name = models.CharField(max_length=50)
+    invited_users = models.ManyToManyField("users.User", related_name="homegroup_invites", through=HomegroupInvite)
+
+    def __repr__(self):
+        return f"{self.id}: {self.name}"
+
+    def __str__(self):
+        return f"{self.id}: {self.name}"
+
+class List(models.Model):
+    # Foreign Key Recipe -> List [as recipes]
+    extra_ingredients = GenericRelation(Ingredient, related_query_name="extra_ingredients")
+    homegroup = models.OneToOneField(Homegroup, on_delete=models.CASCADE, primary_key=True)
     
 
 class Recipe(models.Model):
