@@ -11,6 +11,11 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'one_trip_api.settings')
+settings = 'one_trip_api.settings.dev'
+if os.getenv("DJANGO_RELEASE", False):
+    settings = 'one_trip_api.settings.release'
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings)
+
 
 application = get_asgi_application()
