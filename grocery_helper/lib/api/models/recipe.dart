@@ -8,10 +8,15 @@ import 'package:http/http.dart' as http;
 
 class Recipe {
   int id;
+  int homegroup;
   String name;
   List<Ingredient> ingredients;
 
-  Recipe({required this.id, required this.name, required this.ingredients});
+  Recipe(
+      {required this.id,
+      required this.name,
+      required this.ingredients,
+      required this.homegroup});
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
     List<Ingredient> ingredients = [];
@@ -20,11 +25,12 @@ class Recipe {
     }
     return Recipe(
         id: json["id"] as int,
+        homegroup: json["homegroup"] as int,
         name: json["name"] as String,
         ingredients: ingredients);
   }
 
-  static Future<Recipe?> fetch(int id) async {
+  static Future<Recipe?> get(int id) async {
     String requestURL = "$baseURL/api/recipes/$id/";
 
     String token = TokenSingleton().getToken();
@@ -40,20 +46,36 @@ class Recipe {
     return null;
   }
 
-  static Future<List<Recipe>> fetchList(int groupID) async {
-    Homegroup? group = await Homegroup.fetchHomegroup(groupID);
+  static Future<List<Recipe>> getList(int groupID) async {
+    Homegroup? group = await Homegroup.get(groupID);
     if (group == null) {
       return [];
     }
 
     List<Recipe> recipes = [];
     for (int recipeID in group.recipes) {
-      Recipe? recipe = await Recipe.fetch(recipeID);
+      Recipe? recipe = await Recipe.get(recipeID);
       if (recipe != null) {
         recipes.add(recipe);
       }
     }
 
     return recipes;
+  }
+
+  static Future<Recipe?> create(String name, int group) async {
+    String requestURL = "$baseURL/api/recipes/";
+    String token = TokenSingleton().getToken();
+    final http.Response response = await http.post(
+      Uri.parse(requestURL),
+      headers: {"Authorization": "Token $token"},
+      body: {"homegroup": "$group", "name": name},
+    );
+
+    if (response.statusCode == 201) {
+      return Recipe.fromJson(jsonDecode(response.body));
+    }
+
+    return null;
   }
 }

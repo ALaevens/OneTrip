@@ -60,6 +60,13 @@ flutter_icons:
   android: true
   ios: true
   image_path: "assets/icons/icon.png"
+  windows:
+    generate: true
+    image_path: "assets/icons/desktop.png"
+    icon_size: 256
+  macos:
+    generate: true
+    image_path: "assets/icons/desktop.png"
 
 # The following section is specific to Flutter packages.
 flutter:

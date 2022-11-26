@@ -35,7 +35,7 @@ class Homegroup {
     );
   }
 
-  static Future<Homegroup?> fetchHomegroup(int id) async {
+  static Future<Homegroup?> get(int id) async {
     String requestURL = "$baseURL/api/homegroups/$id/";
 
     String token = TokenSingleton().getToken();
@@ -52,7 +52,7 @@ class Homegroup {
     }
   }
 
-  static Future<Homegroup?> createHomegroup(String title) async {
+  static Future<Homegroup?> create(String title) async {
     String requestURL = "$baseURL/api/homegroups/";
 
     String token = TokenSingleton().getToken();

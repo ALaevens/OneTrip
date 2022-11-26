@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:grocery_helper/api/models/homegroup.dart';
-import 'package:grocery_helper/api/models/ingredient.dart';
 import 'package:grocery_helper/api/models/recipe.dart';
 import 'package:grocery_helper/api/models/user.dart';
+import 'package:grocery_helper/pages/recipes_page/widgets/recipe_card_widget.dart';
+import 'package:grocery_helper/widgets/text_entry_dialog.dart';
 
 class RecipesPage extends StatefulWidget {
   const RecipesPage({super.key});
@@ -14,16 +15,15 @@ class RecipesPage extends StatefulWidget {
 class _RecipesPageState extends State<RecipesPage> {
   late Future<List<Recipe>> _recipes;
   late User _userInfo;
-  late Homegroup _homegroup;
 
   Future<List<Recipe>> _fetchList() async {
-    User? userInfo = await User.fetchUser();
+    User? userInfo = await User.getMe();
     if (userInfo == null || userInfo.homegroup == null) {
       return [];
     }
     _userInfo = userInfo;
 
-    List<Recipe> recipes = await Recipe.fetchList(_userInfo.homegroup!);
+    List<Recipe> recipes = await Recipe.getList(_userInfo.homegroup!);
     return recipes;
   }
 
@@ -42,117 +42,91 @@ class _RecipesPageState extends State<RecipesPage> {
           return Text(snapshot.error.toString());
         } else if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {
-          return RecipeList(recipes: snapshot.data!);
+          return RecipeList(
+              recipes: snapshot.data!, homegroup: _userInfo.homegroup!);
         } else {
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator());
         }
       },
     );
   }
 }
 
-class RecipeList extends StatelessWidget {
+class RecipeList extends StatefulWidget {
   final List<Recipe> recipes;
-  const RecipeList({super.key, required this.recipes});
+  final int homegroup;
+  const RecipeList({super.key, required this.recipes, required this.homegroup});
+
+  @override
+  State<RecipeList> createState() => _RecipeListState();
+}
+
+class _RecipeListState extends State<RecipeList> {
+  int? _expandedCard;
+
+  void showError(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Theme.of(context).colorScheme.error,
+        content: Text(text),
+        action: SnackBarAction(
+          textColor: Theme.of(context).colorScheme.onError,
+          label: "Dismiss",
+          onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        ListView.builder(
-            padding: const EdgeInsets.all(8),
-            itemCount: recipes.length,
-            itemBuilder: (context, index) =>
-                RecipeCard(recipe: recipes[index])),
+        ListView.separated(
+          padding: const EdgeInsets.all(8),
+          itemCount: widget.recipes.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) => RecipeCard(
+            recipe: widget.recipes[index],
+            isExpanded: _expandedCard == index,
+            onTap: () {
+              setState(() {
+                if (_expandedCard == index) {
+                  _expandedCard = null;
+                } else {
+                  _expandedCard = index;
+                }
+              });
+            },
+          ),
+        ),
         Align(
           alignment: Alignment.bottomRight,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: FloatingActionButton.extended(
-              onPressed: () {},
+              onPressed: () async {
+                String? name =
+                    await textEntryDialog(context, "Recipe Name", "Recipe");
+
+                if (name == null) {
+                  return;
+                }
+
+                if (name == "") {
+                  showError("Recipe name cannot be empty");
+                  return;
+                }
+
+                Recipe? created = await Recipe.create(name, widget.homegroup);
+              },
               label: Row(
                 children: const [Icon(Icons.note_add), Text("New Recipe")],
               ),
-              // child: const Icon(Icons.note_add),
             ),
           ),
         )
       ],
-    );
-  }
-}
-
-class RecipeCard extends StatelessWidget {
-  final Recipe recipe;
-  const RecipeCard({super.key, required this.recipe});
-
-  @override
-  Widget build(BuildContext context) {
-    final TextStyle ingredientStyle = Theme.of(context)
-        .textTheme
-        .titleLarge!
-        .copyWith(color: Theme.of(context).colorScheme.onSurface);
-
-    return Card(
-      elevation: 10,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-            top: Radius.circular(10), bottom: Radius.zero),
-      ),
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                recipe.name,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-            ),
-            const Divider(),
-            Container(
-              color: Theme.of(context).colorScheme.surface,
-              child: ListView.separated(
-                padding: const EdgeInsets.all(8),
-                itemCount: (recipe.ingredients.length / 2).ceil(),
-                shrinkWrap: true,
-                separatorBuilder: (context, index) => Divider(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                itemBuilder: (context, index) {
-                  if (recipe.ingredients.length % 2 == 0 ||
-                      index * 2 <= recipe.ingredients.length - 2) {
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            recipe.ingredients[index * 2].name,
-                            style: ingredientStyle,
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(recipe.ingredients[index * 2 + 1].name,
-                              style: ingredientStyle),
-                        )
-                      ],
-                    );
-                  } else {
-                    return Row(
-                      children: [
-                        Text(recipe.ingredients[index * 2].name,
-                            style: ingredientStyle),
-                      ],
-                    );
-                  }
-                },
-              ),
-            )
-          ],
-        ),
-      ),
     );
   }
 }

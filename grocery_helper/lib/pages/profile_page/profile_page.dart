@@ -20,7 +20,7 @@ class _ProfilePageState extends State<ProfilePage> {
   late Future<bool> _isLoaded;
 
   Future<bool> _loadProfile() async {
-    User? userInfo = await User.fetchUser();
+    User? userInfo = await User.getMe();
 
     if (userInfo != null) {
       _userInfo = userInfo;
@@ -108,7 +108,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             invites: _userInfo.homegroupInvites,
                             onJoin: (id) async {
                               User? response =
-                                  await _userInfo.patch(homegroup: id);
+                                  await _userInfo.patchMe(homegroup: id);
 
                               if (response != null) {
                                 setState(() {
@@ -117,7 +117,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               }
                             },
                             onCreate: () async {
-                              String? name = await createHomegroupDialog(
+                              String? name = await textEntryDialog(
                                 context,
                                 "Create Homegroup",
                                 "Homegroup Name",
@@ -132,14 +132,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                 return;
                               }
 
-                              Homegroup? hg =
-                                  await Homegroup.createHomegroup(name);
+                              Homegroup? hg = await Homegroup.create(name);
                               if (hg == null) {
                                 return;
                               }
 
                               User? response =
-                                  await _userInfo.patch(homegroup: hg.id);
+                                  await _userInfo.patchMe(homegroup: hg.id);
 
                               if (response != null) {
                                 setState(() {

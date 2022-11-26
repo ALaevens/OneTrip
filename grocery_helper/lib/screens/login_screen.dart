@@ -15,59 +15,69 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Brightness brightness = Theme.of(context).colorScheme.brightness;
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              SizedBox.square(
-                dimension: 200,
-                child: SvgPicture.asset(
-                  brightness == Brightness.light
-                      ? "assets/images/holes.svg"
-                      : "assets/images/holes-dark.svg",
-                  fit: BoxFit.contain,
-                ),
-              ),
-              FractionallySizedBox(
-                widthFactor: 0.9,
-                child: Card(
-                  elevation: 10,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Column(
-                      children: [
-                        LayoutBuilder(builder: (builder, constraints) {
-                          return ToggleButtons(
-                            isSelected: _isSelected,
-                            constraints: BoxConstraints.expand(
-                                width: constraints.maxWidth / 2 - 8,
-                                height: 30),
-                            selectedBorderColor:
-                                Theme.of(context).colorScheme.primary,
-                            onPressed: (index) {
-                              setState(() {
-                                for (int i = 0; i < _isSelected.length; i++) {
-                                  _isSelected[i] = (i == index);
-                                }
-                              });
-                            },
-                            children: const [Text("Log In"), Text("Sign Up")],
-                          );
-                        }),
-                        _isSelected[0] ? const LoginForm() : const SignupForm()
-                      ],
+      body: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints viewportContraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints:
+                  BoxConstraints(minHeight: viewportContraints.maxHeight),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox.square(
+                    dimension: 150,
+                    child: SvgPicture.asset(
+                      "assets/images/desktop.svg",
+                      fit: BoxFit.contain,
                     ),
                   ),
-                ),
+                  FractionallySizedBox(
+                    widthFactor: 0.9,
+                    child: Card(
+                      elevation: 10,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Column(
+                          children: [
+                            LayoutBuilder(builder: (builder, constraints) {
+                              return ToggleButtons(
+                                isSelected: _isSelected,
+                                constraints: BoxConstraints.expand(
+                                    width: constraints.maxWidth / 2 - 8,
+                                    height: 30),
+                                selectedBorderColor:
+                                    Theme.of(context).colorScheme.primary,
+                                onPressed: (index) {
+                                  setState(() {
+                                    for (int i = 0;
+                                        i < _isSelected.length;
+                                        i++) {
+                                      _isSelected[i] = (i == index);
+                                    }
+                                  });
+                                },
+                                children: const [
+                                  Text("Log In"),
+                                  Text("Sign Up")
+                                ],
+                              );
+                            }),
+                            _isSelected[0]
+                                ? const LoginForm()
+                                : const SignupForm()
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

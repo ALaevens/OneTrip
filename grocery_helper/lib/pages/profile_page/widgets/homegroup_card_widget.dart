@@ -28,7 +28,7 @@ class _CreateJoinHomegroupState extends State<CreateJoinHomegroup> {
 
   Future<bool> _loadInvites() async {
     for (int id in widget.invites) {
-      Homegroup? hg = await Homegroup.fetchHomegroup(id);
+      Homegroup? hg = await Homegroup.get(id);
 
       if (hg != null) {
         _invitedGroups.add(hg);
@@ -157,7 +157,7 @@ class _EditHomegroupState extends State<EditHomegroup> {
   Map<HomegroupInvite, SimpleUser> _groupInviteUsers = {};
 
   Future<bool> _loadHomegroup() async {
-    Homegroup? hg = await Homegroup.fetchHomegroup(widget.homegroupID);
+    Homegroup? hg = await Homegroup.get(widget.homegroupID);
     if (hg == null) {
       return false;
     }
@@ -168,7 +168,7 @@ class _EditHomegroupState extends State<EditHomegroup> {
     _groupInviteUsers = {};
 
     for (int id in hg.users) {
-      SimpleUser? u = await SimpleUser.fetchUser(id: id);
+      SimpleUser? u = await SimpleUser.get(id: id);
 
       if (u != null) {
         _groupUsers.add(u);
@@ -181,7 +181,7 @@ class _EditHomegroupState extends State<EditHomegroup> {
         continue;
       }
 
-      SimpleUser? u = await SimpleUser.fetchUser(id: invite.userID);
+      SimpleUser? u = await SimpleUser.get(id: invite.userID);
 
       if (u != null) {
         _groupInvites.add(invite);
@@ -271,8 +271,8 @@ class _EditHomegroupState extends State<EditHomegroup> {
                                   user:
                                       _groupInviteUsers[_groupInvites[index]]!,
                                   onButton: (id) async {
-                                    bool success = await _groupInvites[index]
-                                        .deleteInvite();
+                                    bool success =
+                                        await _groupInvites[index].delete();
                                     if (success) {
                                       setState(() {
                                         _isLoaded = _loadHomegroup();
@@ -304,7 +304,7 @@ class _EditHomegroupState extends State<EditHomegroup> {
             }
 
             for (int id in selectedIDs) {
-              await HomegroupInvite.createInvite(_homegroup!.id, id);
+              await HomegroupInvite.create(_homegroup!.id, id);
             }
 
             setState(() {

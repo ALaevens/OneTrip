@@ -37,7 +37,7 @@ class SimpleUser {
     );
   }
 
-  static Future<SimpleUser?> fetchUser({int? id}) async {
+  static Future<SimpleUser?> get({int? id}) async {
     String requestURL = "$baseURL/auth/users/${id ?? 'me'}";
 
     String token = TokenSingleton().getToken();

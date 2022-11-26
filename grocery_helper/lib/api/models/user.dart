@@ -39,7 +39,7 @@ class User {
     );
   }
 
-  static Future<User?> fetchUser() async {
+  static Future<User?> getMe() async {
     String requestURL = "$baseURL/auth/users/me";
 
     String token = TokenSingleton().getToken();
@@ -56,7 +56,7 @@ class User {
     }
   }
 
-  Future<User?> patch({
+  Future<User?> patchMe({
     String? firstName,
     String? lastName,
     int? homegroup,

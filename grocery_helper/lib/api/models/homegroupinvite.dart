@@ -37,8 +37,7 @@ class HomegroupInvite {
     return null;
   }
 
-  static Future<HomegroupInvite?> createInvite(
-      int homegroupID, int userID) async {
+  static Future<HomegroupInvite?> create(int homegroupID, int userID) async {
     String requestURL = "$baseURL/api/groupinvites/";
     String token = TokenSingleton().getToken();
     final http.Response response = await http.post(
@@ -54,7 +53,7 @@ class HomegroupInvite {
     return null;
   }
 
-  Future<bool> deleteInvite() async {
+  Future<bool> delete() async {
     String requestURL = "$baseURL/api/groupinvites/$id/";
     String token = TokenSingleton().getToken();
     final http.Response response = await http.delete(
