@@ -173,6 +173,13 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     trySavedToken();
@@ -292,6 +299,15 @@ class _SignupFormState extends State<SignupForm> {
     if (mounted) {
       await Navigator.pushReplacementNamed(context, "/home");
     }
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _firstnameController.dispose();
+    _lastnameController.dispose();
+    super.dispose();
   }
 
   @override

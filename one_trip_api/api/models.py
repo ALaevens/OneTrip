@@ -3,15 +3,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 
 # Create your models here.
-class Ingredient(models.Model):
-    limit = models.Q(app_label="api", model="recipe") | models.Q(app_label="api", model="list")
-    content_type = models.ForeignKey(ContentType, limit_choices_to=limit, on_delete=models.CASCADE)
-    object_id = models.PositiveBigIntegerField()
-    content_object = GenericForeignKey()
-
-
-    name = models.CharField(max_length=50)
-    in_stock = models.BooleanField(default=False)
 
 class HomegroupInvite(models.Model):
     homegroup = models.ForeignKey("api.Homegroup", on_delete=models.CASCADE, related_name="invites", blank=True)
@@ -33,15 +24,21 @@ class Homegroup(models.Model):
         return f"{self.id}: {self.name}"
 
 class List(models.Model):
-    # Foreign Key Recipe -> List [as recipes]
-    extra_ingredients = GenericRelation(Ingredient, related_query_name="extra_ingredients")
+    # Foreign Key ListIngredient -> List [as ingredients]
     homegroup = models.OneToOneField(Homegroup, on_delete=models.CASCADE, primary_key=True)
     
 
 class Recipe(models.Model):
+    # Foreign Key RecipeIngredient -> List [as ingredients]
     name = models.CharField(max_length=50)
     homegroup = models.ForeignKey(Homegroup, related_name="recipes", on_delete=models.CASCADE)
-    list = models.ForeignKey(List, related_name="recipes", on_delete=models.SET_NULL, blank=True, null=True)
-    ingredients = GenericRelation(Ingredient, related_query_name="ingredients")
 
 
+class RecipeIngredient(models.Model):
+    name = models.CharField(max_length=50)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name="ingredients")
+
+class ListIngredient(models.Model):
+    name = models.CharField(max_length=50)
+    list = models.ForeignKey(List, on_delete=models.CASCADE, related_name="ingredients")
+    in_cart = models.BooleanField(default=False)

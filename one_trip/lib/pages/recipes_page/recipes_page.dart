@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:one_trip/api/models/homegroup.dart';
 import 'package:one_trip/api/models/recipe.dart';
 import 'package:one_trip/api/models/user.dart';
 import 'package:one_trip/pages/recipes_page/widgets/recipe_card_widget.dart';
@@ -14,16 +13,17 @@ class RecipesPage extends StatefulWidget {
 
 class _RecipesPageState extends State<RecipesPage> {
   late Future<List<Recipe>> _recipes;
-  late User _userInfo;
+  User? _userInfo;
 
   Future<List<Recipe>> _fetchList() async {
     User? userInfo = await User.getMe();
+    _userInfo = userInfo;
+
     if (userInfo == null || userInfo.homegroup == null) {
       return [];
     }
-    _userInfo = userInfo;
 
-    List<Recipe> recipes = await Recipe.getList(_userInfo.homegroup!);
+    List<Recipe> recipes = await Recipe.getList(userInfo.homegroup!);
     return recipes;
   }
 
@@ -42,8 +42,18 @@ class _RecipesPageState extends State<RecipesPage> {
           return Text(snapshot.error.toString());
         } else if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {
-          return RecipeList(
-              recipes: snapshot.data!, homegroup: _userInfo.homegroup!);
+          if (_userInfo == null) {
+            return const Center(
+              child: Text("Could not load user, try logging in again..."),
+            );
+          } else if (_userInfo!.homegroup == null) {
+            return const Center(
+              child: Text("You must be in a homegroup to use this feature"),
+            );
+          } else {
+            return RecipeList(
+                recipes: snapshot.data!, homegroup: _userInfo!.homegroup!);
+          }
         } else {
           return const Center(child: CircularProgressIndicator());
         }
@@ -63,6 +73,8 @@ class RecipeList extends StatefulWidget {
 
 class _RecipeListState extends State<RecipeList> {
   int? _expandedCard;
+  late List<Recipe> _recipes;
+  final ScrollController _scrollController = ScrollController();
 
   void showError(String text) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -79,15 +91,29 @@ class _RecipeListState extends State<RecipeList> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _recipes = widget.recipes;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         ListView.separated(
-          padding: const EdgeInsets.all(8),
-          itemCount: widget.recipes.length,
+          controller: _scrollController,
+          padding: const EdgeInsets.fromLTRB(
+              8, 8, 8, kFloatingActionButtonMargin + 48),
+          itemCount: _recipes.length,
           separatorBuilder: (context, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) => RecipeCard(
-            recipe: widget.recipes[index],
+            recipe: _recipes[index],
             isExpanded: _expandedCard == index,
             onTap: () {
               setState(() {
@@ -97,6 +123,29 @@ class _RecipeListState extends State<RecipeList> {
                   _expandedCard = index;
                 }
               });
+            },
+            onDismiss: () async {
+              if (_expandedCard != null && _expandedCard! > index) {
+                _expandedCard = _expandedCard! - 1;
+              }
+
+              bool success = await _recipes[index].delete();
+
+              if (!success) {
+                showError("Permanent deletion of recipe failed.");
+              }
+
+              setState(() {
+                _recipes.removeAt(index);
+              });
+            },
+            onChanged: () async {
+              Recipe? newRecipe = await Recipe.get(_recipes[index].id);
+              if (newRecipe != null) {
+                setState(() {
+                  _recipes[index] = newRecipe;
+                });
+              }
             },
           ),
         ),
@@ -119,6 +168,16 @@ class _RecipeListState extends State<RecipeList> {
                 }
 
                 Recipe? created = await Recipe.create(name, widget.homegroup);
+                if (created != null) {
+                  setState(() {
+                    _recipes.insert(0, created);
+                    _expandedCard = 0;
+                  });
+
+                  _scrollController.animateTo(0,
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.linear);
+                }
               },
               label: Row(
                 children: const [Icon(Icons.note_add), Text("New Recipe")],

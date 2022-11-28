@@ -56,6 +56,12 @@ class _PaginationListViewState extends State<PaginationListView> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();

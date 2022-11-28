@@ -6,8 +6,16 @@ import nested_admin
 from api.models import *
 # Register your models here.
 
-class IngredientInline(nested_admin.NestedGenericTabularInline):
-    model = Ingredient
+# class IngredientInline(nested_admin.NestedGenericTabularInline):
+#     model = Ingredient
+#     extra = 0
+
+class RecipeIngredientInline(nested_admin.NestedTabularInline):
+    model = RecipeIngredient
+    extra = 0
+
+class ListIngredientInline(nested_admin.NestedTabularInline):
+    model = ListIngredient
     extra = 0
 
 class UserInline(nested_admin.NestedTabularInline):
@@ -28,20 +36,20 @@ class HomegroupInviteInline(nested_admin.NestedTabularInline):
 
 class RecipeInline(nested_admin.NestedTabularInline):
     model = Recipe
-    inlines = (IngredientInline,)
+    inlines = (RecipeIngredientInline,)
     extra = 0
 
 @admin.register(Recipe)
 class RecipeAdmin(nested_admin.NestedModelAdmin):
     list_display = ("name",)
-    inlines = (IngredientInline,)
+    inlines = (RecipeIngredientInline,)
 
 @admin.register(Homegroup)
 class HomegroupAdmin(nested_admin.NestedModelAdmin):
     list_display = ("id", "name")
-    inlines = (UserInline, HomegroupInviteInline, RecipeInline, IngredientInline)
+    inlines = (UserInline, HomegroupInviteInline, RecipeInline,)
 
 @admin.register(List)
 class ListAdmin(nested_admin.NestedModelAdmin):
     list_display = ("homegroup",)
-    inlines = (RecipeInline, IngredientInline)
+    inlines = (ListIngredientInline,)

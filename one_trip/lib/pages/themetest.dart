@@ -119,6 +119,15 @@ class ColorPage extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSurfaceVariant),
           )),
         ),
+        Container(
+          padding: const EdgeInsets.all(8),
+          color: Theme.of(context).canvasColor,
+          child: Center(
+              child: Text(
+            "Canvas",
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          )),
+        )
       ],
     );
   }

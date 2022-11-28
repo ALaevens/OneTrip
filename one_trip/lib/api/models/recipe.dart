@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'package:one_trip/api/auth.dart';
 import 'package:one_trip/api/consts.dart';
 import 'package:one_trip/api/models/homegroup.dart';
-import 'package:one_trip/api/models/ingredient.dart';
+import 'package:one_trip/api/models/recipeingredient.dart';
 import 'package:http/http.dart' as http;
 
 class Recipe {
   int id;
   int homegroup;
   String name;
-  List<Ingredient> ingredients;
+  List<RecipeIngredient> ingredients;
 
   Recipe(
       {required this.id,
@@ -19,9 +19,9 @@ class Recipe {
       required this.homegroup});
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
-    List<Ingredient> ingredients = [];
+    List<RecipeIngredient> ingredients = [];
     for (dynamic ingredient in json["ingredients"]) {
-      ingredients.add(Ingredient.fromJson(ingredient));
+      ingredients.add(RecipeIngredient.fromJson(ingredient));
     }
     return Recipe(
         id: json["id"] as int,
@@ -56,9 +56,12 @@ class Recipe {
     for (int recipeID in group.recipes) {
       Recipe? recipe = await Recipe.get(recipeID);
       if (recipe != null) {
+        // TODO: implement sorted insert
         recipes.add(recipe);
       }
     }
+
+    recipes.sort(((a, b) => a.name.compareTo(b.name)));
 
     return recipes;
   }
@@ -77,5 +80,20 @@ class Recipe {
     }
 
     return null;
+  }
+
+  Future<bool> delete() async {
+    String requestURL = "$baseURL/api/recipes/$id/";
+    String token = TokenSingleton().getToken();
+    final http.Response response = await http.delete(
+      Uri.parse(requestURL),
+      headers: {"Authorization": "Token $token"},
+    );
+
+    if (response.statusCode == 204) {
+      return true;
+    }
+
+    return false;
   }
 }

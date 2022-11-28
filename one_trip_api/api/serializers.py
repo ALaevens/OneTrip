@@ -2,11 +2,15 @@ from rest_framework import serializers
 from api.models import *
 from users.serializers import UserSerializer
 
-class IngredientSerializer(serializers.ModelSerializer):
+class RecipeIngredientSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Ingredient
-        fields = ["id", "name", "in_stock", "content_type", "object_id"]
-        read_only_fields = ["id"]
+        model = RecipeIngredient
+        fields = ["id", "name", "recipe"]
+
+class ListIngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ListIngredient
+        fields = ["id", "name", "list", "in_cart"]
 
 class RecipeSerializer(serializers.ModelSerializer):
     ingredients = serializers.SerializerMethodField()
@@ -18,7 +22,20 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_ingredients(self, instance):
         ingredients = instance.ingredients.all().order_by("name")
-        return IngredientSerializer(ingredients, many=True).data
+        return RecipeIngredientSerializer(ingredients, many=True).data
+
+class ListSerializer(serializers.ModelSerializer):
+    ingredients = serializers.SerializerMethodField()
+
+    class Meta:
+        model = List
+        fields = ["homegroup", "ingredients"]
+        read_only_fields = ["homegroup"]
+
+    def get_ingredients(self, instance):
+        ingredients = instance.ingredients.all().order_by("name")
+        return ListIngredientSerializer(ingredients, many=True).data
+
 
 class HomegroupSerializer(serializers.ModelSerializer):
     users = serializers.PrimaryKeyRelatedField(many=True, read_only=True)

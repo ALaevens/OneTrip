@@ -32,20 +32,17 @@ class ProfileCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               children: [
                 CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  backgroundColor: Colors.black,
                   radius: 42,
                   child: CircleAvatar(
                     radius: 40,
                     backgroundImage: userInfo.imageUrl != null
                         ? NetworkImage(userInfo.imageUrl!)
-                        : Image(
+                        : const Image(
                             image: Svg('assets/images/person.svg',
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onPrimaryContainer),
+                                color: Colors.black),
                           ).image,
-                    backgroundColor:
-                        Theme.of(context).colorScheme.primaryContainer,
+                    backgroundColor: Colors.white,
                     // https://github.com/flutter/flutter/issues/42901#issuecomment-708050484
                     child: Material(
                       shape: const CircleBorder(),

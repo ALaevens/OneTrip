@@ -15,6 +15,12 @@ class _TextEntryFormState extends State<TextEntryForm> {
   late TextEditingController _textController;
 
   @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     _textController = TextEditingController(text: widget.defaultValue);
@@ -36,7 +42,11 @@ class _TextEntryFormState extends State<TextEntryForm> {
             ),
             const Divider(),
             TextFormField(
+              autofocus: true,
               controller: _textController,
+              onFieldSubmitted: (value) {
+                Navigator.pop(context, value);
+              },
               decoration: InputDecoration(hintText: widget.label),
             ),
             Padding(

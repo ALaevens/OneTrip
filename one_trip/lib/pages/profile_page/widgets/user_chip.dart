@@ -16,16 +16,14 @@ class SmallUserChip extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: baseRadius,
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: Colors.black,
           child: CircleAvatar(
             radius: baseRadius - 2,
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            backgroundColor: Colors.white,
             backgroundImage: user.imageUrl != null
                 ? NetworkImage(user.imageUrl!)
-                : Image(
-                    image: Svg('assets/images/person.svg',
-                        color:
-                            Theme.of(context).colorScheme.onPrimaryContainer),
+                : const Image(
+                    image: Svg('assets/images/person.svg', color: Colors.black),
                   ).image,
           ),
         ),

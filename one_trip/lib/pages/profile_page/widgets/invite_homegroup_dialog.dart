@@ -17,6 +17,12 @@ class _InviteHomegroupDialogState extends State<InviteHomegroupDialog> {
   List<int> selectedIDs = [];
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.zero,
