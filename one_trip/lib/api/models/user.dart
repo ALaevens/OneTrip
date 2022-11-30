@@ -28,13 +28,16 @@ class User {
     List<dynamic> invitesDynamic = json["homegroup_invites"];
     List<int> invites = invitesDynamic.map((e) => e as int).toList();
 
+    String? imagePath = json["image"] as String?;
+    String? imageUrl = imagePath != null ? "$baseURL/media/$imagePath" : null;
+
     return User(
       id: json["id"] as int,
       username: json["username"] as String,
       firstName: json["first_name"] as String,
       lastName: json["last_name"] as String,
       homegroup: json["homegroup"] as int?,
-      imageUrl: json["image"] as String?,
+      imageUrl: imageUrl,
       homegroupInvites: invites,
     );
   }
