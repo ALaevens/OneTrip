@@ -3,12 +3,17 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from rest_framework.authtoken.models import Token
 from api.models import Homegroup
 from users.models import User
+from urllib.parse import parse_qs
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
-        token_homegroup = await self.get_homegroup_by_token(self.scope["headers"])
+        query_params = parse_qs(self.scope["query_string"].decode())
+        query_params.setdefault("authorization", [""])
+
+        token_homegroup = await self.get_homegroup_by_token(query_params["authorization"][0])
         if token_homegroup is None:
-            await self.disconnect(1)
+            await self.accept()
+            await self.close(3000)
         else:
             self.room_name = token_homegroup.id
             self.room_group_name = f"group_{self.room_name}"
@@ -23,24 +28,19 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         )
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        if (close_code != 3000):
+            await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     async def broadcast_update(self, event):
-        print(event)
         await self.send_json(content={"type": "recommend_update", "hash": event["hash"]})
 
     @database_sync_to_async
-    def get_homegroup_by_token(self, headers):
-        headers = self.scope["headers"]
-        for pair in headers:
-            if pair[0].decode("UTF-8") == "authorization":
-                tokenType, tokenString = pair[1].decode("UTF-8").split()
-
-                queryset = Token.objects.filter(key=tokenString)
-                if queryset.exists():
-                    return Token.objects.get(key=tokenString).user.homegroup
-                else:
-                    return None
+    def get_homegroup_by_token(self, tokenString):
+        queryset = Token.objects.filter(key=tokenString)
+        if queryset.exists():
+            return Token.objects.get(key=tokenString).user.homegroup
+        else:
+            return None
 
     @database_sync_to_async
     def get_homegroup_by_id(self, group_id):

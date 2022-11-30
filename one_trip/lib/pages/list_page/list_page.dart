@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:one_trip/api/auth.dart';
 import 'package:one_trip/api/consts.dart';
@@ -10,6 +8,7 @@ import 'package:one_trip/api/models/user.dart';
 import 'package:one_trip/pages/list_page/widgets/listrow.dart';
 import 'package:one_trip/pages/list_page/widgets/search_recipes.dart';
 import 'package:one_trip/widgets/text_entry_dialog.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ListPage extends StatefulWidget {
   const ListPage({super.key});
@@ -22,7 +21,7 @@ class _ListPageState extends State<ListPage> {
   ShoppingList? _list;
   late Future<bool> _isLoaded;
   User? _userInfo;
-  WebSocket? _ws;
+  WebSocketChannel? _wsChannel;
 
   Future<bool> _fetchList() async {
     User? userInfo = await User.getMe();
@@ -33,46 +32,47 @@ class _ListPageState extends State<ListPage> {
     }
 
     _list = await ShoppingList.get(userInfo.homegroup!);
+    _connectSocket();
     return true;
   }
 
   void _connectSocket() async {
     String token = TokenSingleton().getToken();
-    _ws = await WebSocket.connect("$baseWsURL/ws/",
-        headers: {"Authorization": "Token $token"});
+    _wsChannel = WebSocketChannel.connect(
+        Uri.parse("$baseWsURL/ws/?authorization=$token"));
+    _wsChannel!.stream.listen(
+      (event) async {
+        Map<String, dynamic> json = jsonDecode(event);
 
-    if (_ws == null) {
-      return;
-    }
+        if (json.keys.contains("type") && json["type"] == "recommend_update") {
+          if (json["hash"] != _list.hashCode) {
+            ShoppingList? newList = await ShoppingList.get(_list!.homegroup);
 
-    _ws!.listen((event) async {
-      Map<String, dynamic> json = jsonDecode(event);
-
-      if (json.keys.contains("type") && json["type"] == "recommend_update") {
-        if (json["hash"] != _list.hashCode) {
-          ShoppingList? newList = await ShoppingList.get(_list!.homegroup);
-
-          if (newList != null) {
-            setState(() {
-              _list = newList;
-            });
+            if (newList != null) {
+              setState(() {
+                _list = newList;
+              });
+            }
           }
         }
-      }
-    });
+      },
+      onError: (error) => print("Websocket error: $error"),
+      onDone: () => print("Websocket Done"),
+    );
   }
 
   void _sendUpdate() async {
-    if (_ws == null) {
+    if (_wsChannel == null) {
       return;
     }
-    _ws!.add(jsonEncode({"type": "broadcast_update", "hash": _list.hashCode}));
+    _wsChannel!.sink
+        .add(jsonEncode({"type": "broadcast_update", "hash": _list.hashCode}));
   }
 
   @override
   void dispose() {
-    if (_ws != null) {
-      _ws!.close();
+    if (_wsChannel != null) {
+      _wsChannel!.sink.close();
     }
     super.dispose();
   }
@@ -81,7 +81,6 @@ class _ListPageState extends State<ListPage> {
   void initState() {
     super.initState();
     _isLoaded = _fetchList();
-    _connectSocket();
   }
 
   @override
