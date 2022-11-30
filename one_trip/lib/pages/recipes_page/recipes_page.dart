@@ -23,7 +23,7 @@ class _RecipesPageState extends State<RecipesPage> {
       return [];
     }
 
-    List<Recipe> recipes = await Recipe.getList(userInfo.homegroup!);
+    List<Recipe> recipes = await Recipe.getList();
     return recipes;
   }
 
@@ -106,47 +106,44 @@ class _RecipeListState extends State<RecipeList> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        ListView.separated(
+        Scrollbar(
           controller: _scrollController,
-          padding: const EdgeInsets.fromLTRB(
-              8, 8, 8, kFloatingActionButtonMargin + 48),
-          itemCount: _recipes.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 12),
-          itemBuilder: (context, index) => RecipeCard(
-            recipe: _recipes[index],
-            isExpanded: _expandedCard == index,
-            onTap: () {
-              setState(() {
-                if (_expandedCard == index) {
-                  _expandedCard = null;
-                } else {
-                  _expandedCard = index;
-                }
-              });
-            },
-            onDismiss: () async {
-              if (_expandedCard != null && _expandedCard! > index) {
-                _expandedCard = _expandedCard! - 1;
-              }
-
-              bool success = await _recipes[index].delete();
-
-              if (!success) {
-                showError("Permanent deletion of recipe failed.");
-              }
-
-              setState(() {
-                _recipes.removeAt(index);
-              });
-            },
-            onChanged: () async {
-              Recipe? newRecipe = await Recipe.get(_recipes[index].id);
-              if (newRecipe != null) {
+          child: ListView.separated(
+            controller: _scrollController,
+            padding: const EdgeInsets.fromLTRB(
+                8, 8, 8, kFloatingActionButtonMargin + 48),
+            itemCount: _recipes.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 12),
+            itemBuilder: (context, index) => RecipeCard(
+              recipe: _recipes[index],
+              isExpanded: _expandedCard == index,
+              onTap: () {
                 setState(() {
-                  _recipes[index] = newRecipe;
+                  if (_expandedCard == index) {
+                    _expandedCard = null;
+                  } else {
+                    _expandedCard = index;
+                  }
                 });
-              }
-            },
+              },
+              onDismiss: () {
+                if (_expandedCard != null && _expandedCard! > index) {
+                  _expandedCard = _expandedCard! - 1;
+                }
+
+                setState(() {
+                  _recipes.removeAt(index);
+                });
+              },
+              onChanged: () async {
+                Recipe? newRecipe = await Recipe.get(_recipes[index].id);
+                if (newRecipe != null) {
+                  setState(() {
+                    _recipes[index] = newRecipe;
+                  });
+                }
+              },
+            ),
           ),
         ),
         Align(
@@ -154,6 +151,7 @@ class _RecipeListState extends State<RecipeList> {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: FloatingActionButton.extended(
+              heroTag: "add-ingredient",
               onPressed: () async {
                 String? name =
                     await textEntryDialog(context, "Recipe Name", "Recipe");
@@ -180,11 +178,11 @@ class _RecipeListState extends State<RecipeList> {
                 }
               },
               label: Row(
-                children: const [Icon(Icons.note_add), Text("New Recipe")],
+                children: const [Icon(Icons.post_add), Text("Recipe")],
               ),
             ),
           ),
-        )
+        ),
       ],
     );
   }

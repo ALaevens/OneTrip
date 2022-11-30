@@ -1,6 +1,10 @@
 from rest_framework import serializers
 from api.models import *
 from users.serializers import UserSerializer
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+
+channel_layer = get_channel_layer()
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,8 +33,12 @@ class ListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = List
-        fields = ["homegroup", "ingredients"]
+        fields = ["homegroup", "updates", "ingredients"]
         read_only_fields = ["homegroup"]
+
+    def update(self, instance, validated_data):
+        # async_to_sync(channel_layer.group_send)(f"group_{instance.homegroup.id}", {"type": "model_update"})
+        return super().update(instance, validated_data)
 
     def get_ingredients(self, instance):
         ingredients = instance.ingredients.all().order_by("name")

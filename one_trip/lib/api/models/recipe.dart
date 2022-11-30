@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:one_trip/api/auth.dart';
 import 'package:one_trip/api/consts.dart';
-import 'package:one_trip/api/models/homegroup.dart';
 import 'package:one_trip/api/models/recipeingredient.dart';
 import 'package:http/http.dart' as http;
+import 'package:one_trip/api/searchresult.dart';
 
 class Recipe {
   int id;
@@ -46,24 +46,49 @@ class Recipe {
     return null;
   }
 
-  static Future<List<Recipe>> getList(int groupID) async {
-    Homegroup? group = await Homegroup.get(groupID);
-    if (group == null) {
-      return [];
-    }
+  static Future<List<Recipe>> getList() async {
+    const String requestURL = "$baseURL/api/recipes/";
+
+    String token = TokenSingleton().getToken();
+    http.Response response = await http.get(
+      Uri.parse(requestURL),
+      headers: {"Authorization": "Token $token"},
+    );
 
     List<Recipe> recipes = [];
-    for (int recipeID in group.recipes) {
-      Recipe? recipe = await Recipe.get(recipeID);
-      if (recipe != null) {
-        // TODO: implement sorted insert
-        recipes.add(recipe);
+    if (response.statusCode == 200) {
+      var body = jsonDecode(response.body);
+      for (var recipe in body) {
+        recipes.add(Recipe.fromJson(recipe));
       }
     }
 
-    recipes.sort(((a, b) => a.name.compareTo(b.name)));
-
     return recipes;
+  }
+
+  static Future<SearchResult<Recipe>> search(String query, int page) async {
+    String requestURL = "$baseURL/api/searchrecipes/?page=$page&search=$query";
+    requestURL = requestURL.replaceAll(RegExp(r"\s+"), "+");
+
+    String token = TokenSingleton().getToken();
+    final http.Response response = await http.get(
+      Uri.parse(requestURL),
+      headers: {"Authorization": "Token $token"},
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> json = jsonDecode(response.body);
+      List<Recipe> recipes = [];
+      for (var recipeObject in json["results"]) {
+        Recipe r = Recipe.fromJson(recipeObject);
+        recipes.add(r);
+      }
+
+      return SearchResult<Recipe>(
+          results: recipes, next: json["next"] as String?);
+    }
+
+    return SearchResult<Recipe>(results: [], next: null);
   }
 
   static Future<Recipe?> create(String name, int group) async {

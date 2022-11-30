@@ -8,7 +8,7 @@ class ExemptCSRFMiddleware:
 
     def __call__(self, request):
         
-        if request.path_info == "/auth/token":
+        if request.path_info in ["/auth/token", "/auth/users/"]:
             setattr(request, '_dont_enforce_csrf_checks', True)
 
         response = self.get_response(request)

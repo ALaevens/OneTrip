@@ -3,13 +3,14 @@ import 'dart:convert';
 import 'package:one_trip/api/auth.dart';
 import 'package:one_trip/api/consts.dart';
 import 'package:http/http.dart' as http;
+import 'package:one_trip/api/searchresult.dart';
 
-class SearchResult {
-  List<SimpleUser> users;
-  String? next;
+// class SearchResult {
+//   List<SimpleUser> users;
+//   String? next;
 
-  SearchResult({required this.users, required this.next});
-}
+//   SearchResult({required this.users, required this.next});
+// }
 
 class SimpleUser {
   int id;
@@ -38,7 +39,8 @@ class SimpleUser {
   }
 
   static Future<SimpleUser?> get({int? id}) async {
-    String requestURL = "$baseURL/auth/users/${id ?? 'me'}";
+    String requestURL =
+        id == null ? "$baseURL/auth/users/me" : "$baseURL/auth/users/$id/";
 
     String token = TokenSingleton().getToken();
     final http.Response response = await http.get(
@@ -54,7 +56,7 @@ class SimpleUser {
     }
   }
 
-  static Future<SearchResult> search(String query, int page) async {
+  static Future<SearchResult<SimpleUser>> search(String query, int page) async {
     // String requestURL = "";
     // if (url != null) {
     //   requestURL = url;
@@ -81,9 +83,10 @@ class SimpleUser {
         users.add(u);
       }
 
-      return SearchResult(users: users, next: json["next"] as String?);
+      return SearchResult<SimpleUser>(
+          results: users, next: json["next"] as String?);
     }
 
-    return SearchResult(users: [], next: null);
+    return SearchResult<SimpleUser>(results: [], next: null);
   }
 }

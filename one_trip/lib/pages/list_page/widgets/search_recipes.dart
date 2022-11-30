@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:one_trip/api/models/simpleuser.dart';
+import 'package:one_trip/api/models/recipe.dart';
 import 'package:one_trip/api/searchresult.dart';
-import 'package:one_trip/pages/profile_page/widgets/user_chip.dart';
 import 'package:one_trip/theme.dart';
 import 'package:one_trip/widgets/pagination_listview.dart';
 
-class InviteHomegroupDialog extends StatefulWidget {
-  const InviteHomegroupDialog({super.key});
+class SearchRecipesDialog extends StatefulWidget {
+  const SearchRecipesDialog({super.key});
 
   @override
-  State<InviteHomegroupDialog> createState() => _InviteHomegroupDialogState();
+  State<SearchRecipesDialog> createState() => _SearchRecipesDialogState();
 }
 
-class _InviteHomegroupDialogState extends State<InviteHomegroupDialog> {
+class _SearchRecipesDialogState extends State<SearchRecipesDialog> {
   final TextEditingController _searchController = TextEditingController();
   ListViewState _listState = ListViewState.inactive;
   List<int> selectedIDs = [];
@@ -34,7 +33,7 @@ class _InviteHomegroupDialogState extends State<InviteHomegroupDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Invite to Homegroup",
+              "Search your Recipes",
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const Divider(),
@@ -86,7 +85,6 @@ class _InviteHomegroupDialogState extends State<InviteHomegroupDialog> {
                         behavior: HitTestBehavior.translucent,
                         onTap: () {
                           setState(() {
-                            // _ready = false;
                             _listState = ListViewState.inUse;
                             if (selectedIDs.contains(data.id)) {
                               selectedIDs.remove(data.id);
@@ -100,18 +98,7 @@ class _InviteHomegroupDialogState extends State<InviteHomegroupDialog> {
                           color: selectedIDs.contains(data.id)
                               ? Theme.of(context).colorScheme.secondary
                               : null,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              SmallUserChip(
-                                user: data,
-                                radius: 20,
-                                textColor: selectedIDs.contains(data.id)
-                                    ? Theme.of(context).colorScheme.onSecondary
-                                    : null,
-                              ),
-                            ],
-                          ),
+                          child: Text(data.name),
                         ),
                       );
                     },
@@ -119,15 +106,26 @@ class _InviteHomegroupDialogState extends State<InviteHomegroupDialog> {
                       return const Divider();
                     },
                     dataProvider: (int page) async {
-                      SearchResult<SimpleUser> result =
-                          await SimpleUser.search(_searchController.text, page);
-                      List<dynamic> users = List<dynamic>.from(result.results);
+                      // SearchResult<SimpleUser> result =
+                      //     await SimpleUser.search(_searchController.text, page);
+                      // List<dynamic> users = List<dynamic>.from(result.results);
+
+                      // if (result.next == null) {
+                      //   users.add(null);
+                      // }
+
+                      // return users;
+
+                      SearchResult<Recipe> result =
+                          await Recipe.search(_searchController.text, page);
+                      List<dynamic> recipes =
+                          List<dynamic>.from(result.results);
 
                       if (result.next == null) {
-                        users.add(null);
+                        recipes.add(null);
                       }
 
-                      return users;
+                      return recipes;
                     },
                   ),
                 );
@@ -155,13 +153,13 @@ class _InviteHomegroupDialogState extends State<InviteHomegroupDialog> {
   }
 }
 
-Future<List<int>?> inviteHomegroupDialog(BuildContext context) async {
+Future<List<int>?> searchRecipesDialog(BuildContext context) async {
   List<int>? selectedIDs = await showDialog(
     context: context,
     builder: (context) {
       return Dialog(
         child: ScrollConfiguration(
-            behavior: MyBehavior(), child: const InviteHomegroupDialog()),
+            behavior: MyBehavior(), child: const SearchRecipesDialog()),
       );
     },
   );

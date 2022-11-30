@@ -26,6 +26,7 @@ class Homegroup(models.Model):
 class List(models.Model):
     # Foreign Key ListIngredient -> List [as ingredients]
     homegroup = models.OneToOneField(Homegroup, on_delete=models.CASCADE, primary_key=True)
+    updates = models.BigIntegerField(default=0);
     
 
 class Recipe(models.Model):

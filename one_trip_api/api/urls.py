@@ -3,7 +3,8 @@ from rest_framework import routers
 from api import views
 
 router = routers.DefaultRouter()
-router.register(r'recipes', views.RecipeView)
+router.register(r'recipes', views.RecipeAllView)
+router.register(r'searchrecipes', views.RecipeSearchView)
 router.register(r'lists', views.ListView)
 router.register(r'recipeingredients', views.RecipeIngredientView)
 router.register(r'listingredients', views.ListIngredientView)

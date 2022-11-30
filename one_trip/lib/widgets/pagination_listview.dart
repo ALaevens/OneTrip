@@ -6,16 +6,21 @@ class PaginationListView extends StatefulWidget {
   final Widget Function(BuildContext context, dynamic data) itemBuilder;
   final Widget Function(BuildContext context, dynamic data) seperatorBuilder;
   final bool? shrinkWrap;
+  final bool? prefetchOne;
   final ListViewState state;
+  final EdgeInsetsGeometry? padding;
   final Future<List<dynamic>> Function(int page) dataProvider;
 
-  const PaginationListView(
-      {super.key,
-      required this.itemBuilder,
-      required this.dataProvider,
-      required this.state,
-      required this.seperatorBuilder,
-      this.shrinkWrap});
+  const PaginationListView({
+    super.key,
+    required this.itemBuilder,
+    required this.dataProvider,
+    required this.state,
+    required this.seperatorBuilder,
+    this.prefetchOne,
+    this.shrinkWrap,
+    this.padding,
+  });
 
   @override
   State<PaginationListView> createState() => _PaginationListViewState();
@@ -66,6 +71,15 @@ class _PaginationListViewState extends State<PaginationListView> {
     super.initState();
     _scrollController = ScrollController();
     _state = widget.state;
+
+    if (widget.prefetchOne ?? false) {
+      _state = ListViewState.inUse;
+      _data = [];
+      _dataLeft = true;
+      _isLoading = false;
+      _pagesLoaded = 0;
+      consumeData();
+    }
   }
 
   @override
@@ -98,6 +112,7 @@ class _PaginationListViewState extends State<PaginationListView> {
           controller: _scrollController,
           itemCount: _data.length,
           shrinkWrap: widget.shrinkWrap ?? false,
+          padding: widget.padding,
           itemBuilder: (context, index) =>
               widget.itemBuilder(context, _data[index]),
           separatorBuilder: (context, index) =>

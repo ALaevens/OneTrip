@@ -33,6 +33,8 @@ REST_FRAMEWORK = {
 INSTALLED_APPS = [
     'api',
     'users',
+    'ws',
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -76,6 +78,15 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'one_trip_api.wsgi.application'
+ASGI_APPLICATION = 'one_trip_api.asgi.application'
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 DATABASES = {
     'default': {

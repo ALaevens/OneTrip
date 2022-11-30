@@ -17,5 +17,5 @@ if os.getenv("DJANGO_RELEASE", False):
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings)
 
-
+print("WSGI Started")
 application = get_wsgi_application()

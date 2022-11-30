@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:one_trip/pages/list_page/list_page.dart';
 import 'package:one_trip/pages/profile_page/profile_page.dart';
 import 'package:one_trip/pages/recipes_page/recipes_page.dart';
 import 'package:one_trip/pages/themetest.dart';
@@ -23,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     _pages = <Widget>[
-      Container(),
+      const ListPage(),
       const RecipesPage(),
       const ProfilePage(),
       const ColorPage()

@@ -85,6 +85,7 @@ class _RecipeCardState extends State<RecipeCard> with TickerProviderStateMixin {
                   : DismissDirection.endToStart,
               key: Key("${widget.recipe.id}"),
               onDismissed: (direction) => widget.onDismiss(),
+              confirmDismiss: (direction) => widget.recipe.delete(),
               onUpdate: (details) {
                 setState(() {
                   dismissAmount = details.progress;
@@ -92,16 +93,8 @@ class _RecipeCardState extends State<RecipeCard> with TickerProviderStateMixin {
                 });
               },
               background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      Color.fromARGB(255, 255, 0, 0),
-                      Color.fromARGB(255, 255, 170, 170),
-                    ],
-                  ),
-                ),
+                color: Color.lerp(Colors.transparent, Colors.red,
+                    min(dismissAmount * 2.5, 1)),
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: SizedBox(
@@ -109,7 +102,7 @@ class _RecipeCardState extends State<RecipeCard> with TickerProviderStateMixin {
                     child: Icon(
                       Icons.delete,
                       size: min(27.5 * dismissAmount + 20, 35),
-                      color: willDismiss ? Colors.red : Colors.white,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -193,9 +186,11 @@ class _IngredientSectionState extends State<IngredientSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Material(
+      elevation: 10,
       color: Theme.of(context).colorScheme.surface,
       child: ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
         padding: widget.ingredients.isEmpty
             ? EdgeInsets.zero
             : const EdgeInsets.all(8),
@@ -208,16 +203,8 @@ class _IngredientSectionState extends State<IngredientSection> {
                 key: Key("${widget.ingredients[index].id}"),
                 direction: DismissDirection.endToStart,
                 background: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [
-                        Color.fromARGB(255, 255, 0, 0),
-                        Color.fromARGB(255, 255, 170, 170),
-                      ],
-                    ),
-                  ),
+                  color: Color.lerp(Colors.transparent, Colors.red,
+                      min(dismissAmount * 2.5, 1)),
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: SizedBox(
@@ -225,7 +212,7 @@ class _IngredientSectionState extends State<IngredientSection> {
                       child: Icon(
                         Icons.delete,
                         size: min(27.5 * dismissAmount + 20, 35),
-                        color: willDismiss ? Colors.red : Colors.white,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -236,11 +223,10 @@ class _IngredientSectionState extends State<IngredientSection> {
                     willDismiss = details.reached;
                   });
                 },
+                confirmDismiss: (direction) async =>
+                    await widget.ingredients[index].delete(),
                 onDismissed: (direction) async {
-                  bool success = await widget.ingredients[index].delete();
-                  if (success) {
-                    widget.onChanged();
-                  }
+                  widget.onChanged();
                 },
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -251,22 +237,23 @@ class _IngredientSectionState extends State<IngredientSection> {
                       style: Theme.of(context).textTheme.titleMedium,
                     )),
                     IconButton(
-                        onPressed: () async {
-                          String? name = await textEntryDialog(
-                              context, "Change Ingredient Name", "Ingredient",
-                              defaultValue: widget.ingredients[index].name);
+                      onPressed: () async {
+                        String? name = await textEntryDialog(
+                            context, "Change Ingredient Name", "Ingredient",
+                            defaultValue: widget.ingredients[index].name);
 
-                          if (name == null || name == "") {
-                            return;
-                          }
+                        if (name == null || name == "") {
+                          return;
+                        }
 
-                          RecipeIngredient? changed =
-                              await widget.ingredients[index].patch(name);
-                          if (changed != null) {
-                            widget.onChanged();
-                          }
-                        },
-                        icon: const Icon(Icons.edit)),
+                        RecipeIngredient? changed =
+                            await widget.ingredients[index].patch(name);
+                        if (changed != null) {
+                          widget.onChanged();
+                        }
+                      },
+                      icon: const Icon(Icons.edit),
+                    ),
                   ],
                 ),
               ),

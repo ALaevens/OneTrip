@@ -12,10 +12,6 @@ final _lightScheme =
 final darkTheme = ThemeData(
     colorScheme: _darkScheme,
     toggleableActiveColor: _darkScheme.primary,
-    floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: _darkScheme.primary,
-      splashColor: _darkScheme.secondary,
-    ),
     cardColor: _darkScheme.secondaryContainer);
 
 final lightTheme = ThemeData(
@@ -31,6 +27,7 @@ final bottomButtonStyle = ButtonStyle(
           BorderRadius.vertical(top: Radius.zero, bottom: Radius.circular(10)),
     ),
   ),
+  elevation: const MaterialStatePropertyAll(10),
 );
 
 // https://stackoverflow.com/a/51119796/13538080

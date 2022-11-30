@@ -4,21 +4,21 @@ import 'package:one_trip/api/auth.dart';
 import 'package:one_trip/api/consts.dart';
 import 'package:http/http.dart' as http;
 
-class RecipeIngredient {
+class ListIngredient {
   int id;
   String name;
   int list;
   bool inCart;
 
-  RecipeIngredient({
+  ListIngredient({
     required this.id,
     required this.name,
     required this.list,
     required this.inCart,
   });
 
-  factory RecipeIngredient.fromJson(Map<String, dynamic> json) {
-    return RecipeIngredient(
+  factory ListIngredient.fromJson(Map<String, dynamic> json) {
+    return ListIngredient(
       id: json["id"] as int,
       name: json["name"] as String,
       list: json["list"] as int,
@@ -26,7 +26,7 @@ class RecipeIngredient {
     );
   }
 
-  static Future<RecipeIngredient?> create(String name, int recipeID) async {
+  static Future<ListIngredient?> create(String name, int list) async {
     const String requestURL = "$baseURL/api/listingredients/";
     String token = TokenSingleton().getToken();
     http.Response response = await http.post(
@@ -34,26 +34,35 @@ class RecipeIngredient {
       headers: {"Authorization": "Token $token"},
       body: {
         "name": name,
-        "recipe": "$recipeID",
+        "list": "$list",
       },
     );
 
     if (response.statusCode == 201) {
-      return RecipeIngredient.fromJson(jsonDecode(response.body));
+      return ListIngredient.fromJson(jsonDecode(response.body));
     } else {
       return null;
     }
   }
 
-  Future<RecipeIngredient?> patch(String name) async {
+  Future<ListIngredient?> patch({String? name, bool? inCart}) async {
     String requestURL = "$baseURL/api/listingredients/$id/";
     String token = TokenSingleton().getToken();
 
+    Map<String, String> body = {};
+    if (name != null) {
+      body["name"] = name;
+    }
+
+    if (inCart != null) {
+      body["in_cart"] = "$inCart";
+    }
+
     http.Response response = await http.patch(Uri.parse(requestURL),
-        headers: {"Authorization": "Token $token"}, body: {"name": name});
+        headers: {"Authorization": "Token $token"}, body: body);
 
     if (response.statusCode == 200) {
-      return RecipeIngredient.fromJson(jsonDecode(response.body));
+      return ListIngredient.fromJson(jsonDecode(response.body));
     }
 
     return null;
@@ -71,4 +80,14 @@ class RecipeIngredient {
 
     return false;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      other is ListIngredient &&
+      other.id == id &&
+      other.name == name &&
+      other.inCart == inCart;
+
+  @override
+  int get hashCode => Object.hash(id, name, inCart);
 }
