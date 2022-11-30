@@ -10,17 +10,17 @@ https://docs.djangoproject.com/en/4.1/howto/deployment/asgi/
 import os
 import django
 
-from django.core.asgi import get_asgi_application
-from channels.routing import ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
-import ws.routing
-
 settings = 'one_trip_api.settings.dev'
 if os.getenv("DJANGO_RELEASE", False):
     settings = 'one_trip_api.settings.release'
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings)
 django.setup()
+
+from django.core.asgi import get_asgi_application
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+import ws.routing
 
 print("ASGI Started")
 django_asgi_app = get_asgi_application()

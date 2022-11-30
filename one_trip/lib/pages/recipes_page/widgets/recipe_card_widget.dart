@@ -258,7 +258,8 @@ class _IngredientSectionState extends State<IngredientSection> {
                 ),
               ),
               Divider(
-                  height: 1,
+                  height: 2,
+                  thickness: 1,
                   color: index % 2 == 0
                       ? Theme.of(context).colorScheme.primary
                       : Theme.of(context).colorScheme.error)

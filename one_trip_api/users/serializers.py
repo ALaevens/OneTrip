@@ -21,9 +21,7 @@ class UserSerializer(serializers.ModelSerializer):  # https://stackoverflow.com/
 
         return super().update(instance, validated_data)
 
-    image = serializers.ImageField(
-            max_length=None, use_url=False
-        )
+    image = serializers.ImageField(required=False, max_length=None, use_url=False)
 
     class Meta:
         model = User
