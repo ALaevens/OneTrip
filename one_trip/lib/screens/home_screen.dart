@@ -18,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
     "Shopping List",
     "Saved Recipes",
     "Your Profile",
-    "Color Debug"
+    // "Color Debug"
   ];
 
   @override
@@ -27,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
       const ListPage(),
       const RecipesPage(),
       const ProfilePage(),
-      const ColorPage()
+      // const ColorPage()
     ];
     super.initState();
   }
@@ -58,11 +58,11 @@ class _HomeScreenState extends State<HomeScreen> {
             label: "Profile",
             backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.grid_3x3),
-            label: "Colors",
-            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-          )
+          // BottomNavigationBarItem(
+          //   icon: const Icon(Icons.grid_3x3),
+          //   label: "Colors",
+          //   backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+          // )
         ],
         currentIndex: _selectedPage,
         onTap: (value) {

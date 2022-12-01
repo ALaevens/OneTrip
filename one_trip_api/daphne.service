@@ -1,0 +1,16 @@
+[Unit]
+Description=daphne daemon
+After=network.target
+
+[Service]
+User=django
+Group=www-data
+Environment="DJANGO_RELEASE=True"
+WorkingDirectory=/opt/django/OneTrip/one_trip_api
+ExecStart=/opt/django/OneTrip/one_trip_api/venv/bin/daphne \
+          --u /run/daphne/daphne.sock \
+          one_trip_api.asgi:application
+
+[Install]
+WantedBy=multi-user.target
+
