@@ -7,11 +7,13 @@ import 'package:http/http.dart' as http;
 class RecipeIngredient {
   int id;
   String name;
+  String? quantity;
   int recipe;
 
   RecipeIngredient({
     required this.id,
     required this.name,
+    required this.quantity,
     required this.recipe,
   });
 
@@ -19,20 +21,32 @@ class RecipeIngredient {
     return RecipeIngredient(
       id: json["id"] as int,
       name: json["name"] as String,
+      quantity: json["quantity"] as String?,
       recipe: json["recipe"] as int,
     );
   }
 
-  static Future<RecipeIngredient?> create(String name, int recipeID) async {
+  static Future<RecipeIngredient?> create(
+      int recipeID, String name, String? quantity) async {
     const String requestURL = "$baseURL/api/recipeingredients/";
     String token = TokenSingleton().getToken();
+
+    Map<String, dynamic> body = {
+      "name": name,
+      "recipe": recipeID,
+    };
+
+    if (quantity != null) {
+      body["quantity"] = quantity;
+    }
+
     http.Response response = await http.post(
       Uri.parse(requestURL),
-      headers: {"Authorization": "Token $token"},
-      body: {
-        "name": name,
-        "recipe": "$recipeID",
+      headers: {
+        "Authorization": "Token $token",
+        "Content-Type": "application/json",
       },
+      body: jsonEncode(body),
     );
 
     if (response.statusCode == 201) {
@@ -42,12 +56,22 @@ class RecipeIngredient {
     }
   }
 
-  Future<RecipeIngredient?> patch(String name) async {
+  Future<RecipeIngredient?> patch({String? name, String? quantity}) async {
+    Map<String, dynamic> body = {"quantity": quantity};
+
+    if (name != null) {
+      body["name"] = name;
+    }
+
     String requestURL = "$baseURL/api/recipeingredients/$id/";
     String token = TokenSingleton().getToken();
 
     http.Response response = await http.patch(Uri.parse(requestURL),
-        headers: {"Authorization": "Token $token"}, body: {"name": name});
+        headers: {
+          "Authorization": "Token $token",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(body));
 
     if (response.statusCode == 200) {
       return RecipeIngredient.fromJson(jsonDecode(response.body));

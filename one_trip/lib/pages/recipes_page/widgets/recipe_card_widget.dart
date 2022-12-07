@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:one_trip/api/models/recipeingredient.dart';
 import 'package:one_trip/api/models/recipe.dart';
 import 'package:one_trip/theme.dart';
-import 'package:one_trip/widgets/text_entry_dialog.dart';
+import 'package:one_trip/widgets/ingredient_dialog.dart';
 
 class RecipeCard extends StatefulWidget {
   final Recipe recipe;
@@ -145,15 +145,18 @@ class _RecipeCardState extends State<RecipeCard> with TickerProviderStateMixin {
                         shape: const MaterialStatePropertyAll(
                             RoundedRectangleBorder())),
                     onPressed: () async {
-                      String? name = await textEntryDialog(
-                          context, "Ingredient Name", "Ingredient");
+                      IngredientDetails? details =
+                          await ingredientDialog(context, "", "");
 
-                      if (name == null || name == "") {
+                      if (details == null || details.name == "") {
                         return;
                       }
 
                       RecipeIngredient? ingredient =
-                          await RecipeIngredient.create(name, widget.recipe.id);
+                          await RecipeIngredient.create(
+                              widget.recipe.id,
+                              details.name,
+                              details.quantity != "" ? details.quantity : null);
                       if (ingredient != null) {
                         widget.onChanged();
                       }
@@ -233,21 +236,29 @@ class _IngredientSectionState extends State<IngredientSection> {
                   children: [
                     Expanded(
                         child: Text(
-                      widget.ingredients[index].name,
+                      widget.ingredients[index].quantity == null
+                          ? widget.ingredients[index].name
+                          : "${widget.ingredients[index].name} - ${widget.ingredients[index].quantity}",
                       style: Theme.of(context).textTheme.titleMedium,
                     )),
                     IconButton(
                       onPressed: () async {
-                        String? name = await textEntryDialog(
-                            context, "Change Ingredient Name", "Ingredient",
-                            defaultValue: widget.ingredients[index].name);
+                        IngredientDetails? details = await ingredientDialog(
+                            context,
+                            widget.ingredients[index].name,
+                            widget.ingredients[index].quantity ?? "");
 
-                        if (name == null || name == "") {
+                        if (details == null || details.name == "") {
                           return;
                         }
 
                         RecipeIngredient? changed =
-                            await widget.ingredients[index].patch(name);
+                            await widget.ingredients[index].patch(
+                                name: details.name,
+                                quantity: details.quantity != ""
+                                    ? details.quantity
+                                    : null);
+
                         if (changed != null) {
                           widget.onChanged();
                         }

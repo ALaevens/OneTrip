@@ -9,12 +9,10 @@ import 'package:one_trip/api/models/recipeingredient.dart';
 
 class ShoppingList {
   List<ListIngredient> ingredients;
-  int updates;
   int homegroup;
 
   ShoppingList({
     required this.ingredients,
-    required this.updates,
     required this.homegroup,
   });
 
@@ -25,9 +23,7 @@ class ShoppingList {
     }
 
     return ShoppingList(
-        ingredients: ingredients,
-        updates: json["updates"] as int,
-        homegroup: json["homegroup"] as int);
+        ingredients: ingredients, homegroup: json["homegroup"] as int);
   }
 
   static Future<ShoppingList?> get(int id) async {
@@ -72,8 +68,8 @@ class ShoppingList {
 
     bool anySuccesses = false;
     for (RecipeIngredient ingredient in recipe.ingredients) {
-      ListIngredient? newIngredient =
-          await ListIngredient.create(ingredient.name, homegroup);
+      ListIngredient? newIngredient = await ListIngredient.create(
+          homegroup, ingredient.name, ingredient.quantity);
 
       if (newIngredient != null) {
         anySuccesses = true;
@@ -81,7 +77,7 @@ class ShoppingList {
     }
 
     if (anySuccesses) {
-      return patch(updates: updates + 1);
+      return get(homegroup);
     }
 
     return null;
@@ -98,7 +94,7 @@ class ShoppingList {
     }
 
     if (anySuccess) {
-      return patch(updates: updates + 1);
+      return get(homegroup);
     }
 
     return null;

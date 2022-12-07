@@ -7,12 +7,14 @@ import 'package:http/http.dart' as http;
 class ListIngredient {
   int id;
   String name;
+  String? quantity;
   int list;
   bool inCart;
 
   ListIngredient({
     required this.id,
     required this.name,
+    required this.quantity,
     required this.list,
     required this.inCart,
   });
@@ -21,21 +23,33 @@ class ListIngredient {
     return ListIngredient(
       id: json["id"] as int,
       name: json["name"] as String,
+      quantity: json["quantity"] as String?,
       list: json["list"] as int,
       inCart: json["in_cart"] as bool,
     );
   }
 
-  static Future<ListIngredient?> create(String name, int list) async {
+  static Future<ListIngredient?> create(
+      int list, String name, String? quantity) async {
     const String requestURL = "$baseURL/api/listingredients/";
     String token = TokenSingleton().getToken();
+
+    Map<String, dynamic> body = {
+      "name": name,
+      "list": list,
+    };
+
+    if (quantity != null) {
+      body["quantity"] = quantity;
+    }
+
     http.Response response = await http.post(
       Uri.parse(requestURL),
-      headers: {"Authorization": "Token $token"},
-      body: {
-        "name": name,
-        "list": "$list",
+      headers: {
+        "Authorization": "Token $token",
+        "Content-Type": "application/json",
       },
+      body: jsonEncode(body),
     );
 
     if (response.statusCode == 201) {
@@ -45,21 +59,27 @@ class ListIngredient {
     }
   }
 
-  Future<ListIngredient?> patch({String? name, bool? inCart}) async {
+  Future<ListIngredient?> patch(
+      {String? name, String? quantity, bool? inCart}) async {
     String requestURL = "$baseURL/api/listingredients/$id/";
     String token = TokenSingleton().getToken();
 
-    Map<String, String> body = {};
+    Map<String, dynamic> body = {"quantity": quantity ?? this.quantity};
+
     if (name != null) {
       body["name"] = name;
     }
 
     if (inCart != null) {
-      body["in_cart"] = "$inCart";
+      body["in_cart"] = inCart;
     }
 
     http.Response response = await http.patch(Uri.parse(requestURL),
-        headers: {"Authorization": "Token $token"}, body: body);
+        headers: {
+          "Authorization": "Token $token",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(body));
 
     if (response.statusCode == 200) {
       return ListIngredient.fromJson(jsonDecode(response.body));
@@ -86,8 +106,9 @@ class ListIngredient {
       other is ListIngredient &&
       other.id == id &&
       other.name == name &&
+      other.quantity == quantity &&
       other.inCart == inCart;
 
   @override
-  int get hashCode => Object.hash(id, name, inCart);
+  int get hashCode => Object.hash(id, name, quantity, inCart);
 }

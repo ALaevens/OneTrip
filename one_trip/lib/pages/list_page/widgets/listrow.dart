@@ -67,7 +67,9 @@ class _ListRowState extends State<ListRow> {
             Expanded(
               child: Text(
                 // _ingredient.name,
-                widget.ingredient.name,
+                widget.ingredient.quantity == null
+                    ? widget.ingredient.name
+                    : "${widget.ingredient.name} - ${widget.ingredient.quantity}",
                 style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       decoration: widget.ingredient.inCart
                           ? TextDecoration.lineThrough

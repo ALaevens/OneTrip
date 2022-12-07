@@ -9,12 +9,12 @@ channel_layer = get_channel_layer()
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecipeIngredient
-        fields = ["id", "name", "recipe"]
+        fields = ["id", "name", "quantity", "recipe"]
 
 class ListIngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = ListIngredient
-        fields = ["id", "name", "list", "in_cart"]
+        fields = ["id", "name", "quantity", "list", "in_cart"]
 
 class RecipeSerializer(serializers.ModelSerializer):
     ingredients = serializers.SerializerMethodField()
@@ -33,12 +33,8 @@ class ListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = List
-        fields = ["homegroup", "updates", "ingredients"]
+        fields = ["homegroup", "ingredients"]
         read_only_fields = ["homegroup"]
-
-    def update(self, instance, validated_data):
-        # async_to_sync(channel_layer.group_send)(f"group_{instance.homegroup.id}", {"type": "model_update"})
-        return super().update(instance, validated_data)
 
     def get_ingredients(self, instance):
         ingredients = instance.ingredients.all().order_by("name")

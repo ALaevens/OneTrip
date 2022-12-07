@@ -12,7 +12,7 @@ class HasHomegroup(permissions.BasePermission):
         return super().has_permission(request, view)
 
 class Pagination(pagination.PageNumberPagination):
-    page_size = 4
+    page_size = 10
 
 class NoListModelViewset(mixins.CreateModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     pass

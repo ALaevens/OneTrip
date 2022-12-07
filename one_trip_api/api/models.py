@@ -26,7 +26,6 @@ class Homegroup(models.Model):
 class List(models.Model):
     # Foreign Key ListIngredient -> List [as ingredients]
     homegroup = models.OneToOneField(Homegroup, on_delete=models.CASCADE, primary_key=True)
-    updates = models.BigIntegerField(default=0);
     
 
 class Recipe(models.Model):
@@ -37,9 +36,11 @@ class Recipe(models.Model):
 
 class RecipeIngredient(models.Model):
     name = models.CharField(max_length=50)
+    quantity = models.CharField(max_length=50, null=True, blank=True)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name="ingredients")
 
 class ListIngredient(models.Model):
     name = models.CharField(max_length=50)
+    quantity = models.CharField(max_length=50, null=True, blank=True)
     list = models.ForeignKey(List, on_delete=models.CASCADE, related_name="ingredients")
     in_cart = models.BooleanField(default=False)

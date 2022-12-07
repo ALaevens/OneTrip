@@ -80,6 +80,7 @@ class _SearchRecipesDialogState extends State<SearchRecipesDialog> {
                   child: PaginationListView(
                     state: _listState,
                     shrinkWrap: true,
+                    prefetchOne: true,
                     itemBuilder: (context, data) {
                       return GestureDetector(
                         behavior: HitTestBehavior.translucent,
@@ -98,7 +99,13 @@ class _SearchRecipesDialogState extends State<SearchRecipesDialog> {
                           color: selectedIDs.contains(data.id)
                               ? Theme.of(context).colorScheme.secondary
                               : null,
-                          child: Text(data.name),
+                          child: Text(
+                            data.name,
+                            style: TextStyle(
+                                color: selectedIDs.contains(data.id)
+                                    ? Theme.of(context).colorScheme.onSecondary
+                                    : null),
+                          ),
                         ),
                       );
                     },
@@ -106,16 +113,6 @@ class _SearchRecipesDialogState extends State<SearchRecipesDialog> {
                       return const Divider();
                     },
                     dataProvider: (int page) async {
-                      // SearchResult<SimpleUser> result =
-                      //     await SimpleUser.search(_searchController.text, page);
-                      // List<dynamic> users = List<dynamic>.from(result.results);
-
-                      // if (result.next == null) {
-                      //   users.add(null);
-                      // }
-
-                      // return users;
-
                       SearchResult<Recipe> result =
                           await Recipe.search(_searchController.text, page);
                       List<dynamic> recipes =
@@ -137,12 +134,15 @@ class _SearchRecipesDialogState extends State<SearchRecipesDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
+                    style: negativeButtonStyle(context),
                     onPressed: () => Navigator.pop(context),
                     child: const Text("Cancel"),
                   ),
                   ElevatedButton(
-                      onPressed: () => Navigator.pop(context, selectedIDs),
-                      child: const Text("Done")),
+                    style: positiveButtonStyle(context),
+                    onPressed: () => Navigator.pop(context, selectedIDs),
+                    child: const Text("Done"),
+                  ),
                 ],
               ),
             )

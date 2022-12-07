@@ -20,30 +20,36 @@
 ## Pictures
 
 ### Main Menu
-![Login Screen](https://user-images.githubusercontent.com/44736322/204997033-fa10ceae-ae54-4816-b043-a1663532b5b3.png)
+![Login Screen](https://user-images.githubusercontent.com/44736322/206134503-490b7b5c-9ef1-4a32-af2f-a664b587c4d6.png)
 
 ### Profile Page
-![Profile Page](https://user-images.githubusercontent.com/44736322/204997046-d3b09233-266f-4082-8f05-4b97d5369a18.png)
+![Profile Page](https://user-images.githubusercontent.com/44736322/206134506-7c035ea7-8431-4116-b61f-f1bbe0b23713.png)
 
 ### Search for Users
-![Searching for users](https://user-images.githubusercontent.com/44736322/204997074-464c3b0c-96c2-4ac0-8e28-ebc1319c0065.png)
+![Searching for users](https://user-images.githubusercontent.com/44736322/206134507-c2e5c805-3c0e-4ead-9c48-b047e5fb75dc.png)
+
+Searched Users are sorted by first name, then last name, then username
 
 ### Create, Edit, and Delete Recipes
-![Create Edit Delete Recipes](https://user-images.githubusercontent.com/44736322/204997088-cb4a34e4-9c09-408f-b15d-4b30a8409f5c.png)
+![Create Edit Delete Recipes](https://user-images.githubusercontent.com/44736322/206134508-94332b3e-ea62-47e5-8426-c876e9f7ce24.png)
 
 Recipes and individual ingredients can be deleted by swiping them off of the screen
 
 ### Search for Recipes to add to Shopping List
-![Search Recipes](https://user-images.githubusercontent.com/44736322/204997188-7e03d067-a26e-4629-be3f-ef9039eee54b.png)
+![Search Recipes](https://user-images.githubusercontent.com/44736322/206134511-c0fd19b3-9816-4d87-bfde-54fb110c2fe5.png)
 
 ### Delete Items from List
-![swipe](https://user-images.githubusercontent.com/44736322/205004229-c59ef486-edb6-4595-aa0c-846f008ab1a1.gif)
+https://user-images.githubusercontent.com/44736322/206134495-b6b97f81-b77b-4068-8359-39e64d5312ca.mp4
+
+### Add Additional Items
+![Add Individual](https://user-images.githubusercontent.com/44736322/206134513-c6d7bedd-659f-45de-83ef-7aa4b1a9378f.png)
 
 ### Shopping List Page
-![Shopping List Page](https://user-images.githubusercontent.com/44736322/204997203-5341a35e-9269-43eb-a212-6404c8119482.png)
+![Shopping List Page](https://user-images.githubusercontent.com/44736322/206134515-1636e086-80a7-45df-801b-af90c2059d10.png)
 
 ### Backend Data Models
-![backend-structure](https://user-images.githubusercontent.com/44736322/205004669-9f9387e0-1f76-42ac-8d49-d94cd17518aa.png)
+![backend-structure](https://user-images.githubusercontent.com/44736322/206135954-63c728ce-3662-4e10-9914-557ce65f04ee.png)
+
 
 
 

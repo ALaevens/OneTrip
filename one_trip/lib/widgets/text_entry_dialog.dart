@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:one_trip/theme.dart';
 
 class TextEntryForm extends StatefulWidget {
   final String title;
@@ -55,13 +56,16 @@ class _TextEntryFormState extends State<TextEntryForm> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
+                    style: negativeButtonStyle(context),
                     onPressed: () => Navigator.pop(context),
                     child: const Text("Cancel"),
                   ),
                   ElevatedButton(
-                      onPressed: () =>
-                          Navigator.pop(context, _textController.text),
-                      child: const Text("Done")),
+                    style: positiveButtonStyle(context),
+                    onPressed: () =>
+                        Navigator.pop(context, _textController.text),
+                    child: const Text("Done"),
+                  ),
                 ],
               ),
             ),

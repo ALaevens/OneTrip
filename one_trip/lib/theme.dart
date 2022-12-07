@@ -38,3 +38,28 @@ class MyBehavior extends ScrollBehavior {
     return child;
   }
 }
+
+ButtonStyle positiveButtonStyle(BuildContext context) {
+  Brightness brightness = Theme.of(context).colorScheme.brightness;
+
+  if (brightness == Brightness.dark) {
+    return ButtonStyle(
+      backgroundColor: MaterialStatePropertyAll(Colors.green[200]),
+      foregroundColor: MaterialStatePropertyAll(Colors.green[900]),
+    );
+  } else {
+    return ButtonStyle(
+      backgroundColor: MaterialStatePropertyAll(Colors.green[900]),
+      foregroundColor: const MaterialStatePropertyAll(Colors.white),
+    );
+  }
+}
+
+ButtonStyle negativeButtonStyle(BuildContext context) {
+  return ButtonStyle(
+    backgroundColor:
+        MaterialStatePropertyAll(Theme.of(context).colorScheme.error),
+    foregroundColor:
+        MaterialStatePropertyAll(Theme.of(context).colorScheme.onError),
+  );
+}

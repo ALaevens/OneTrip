@@ -6,8 +6,9 @@ import 'package:one_trip/api/models/list.dart';
 import 'package:one_trip/api/models/listingredient.dart';
 import 'package:one_trip/api/models/user.dart';
 import 'package:one_trip/pages/list_page/widgets/listrow.dart';
-import 'package:one_trip/pages/list_page/widgets/search_recipes.dart';
-import 'package:one_trip/widgets/text_entry_dialog.dart';
+import 'package:one_trip/pages/list_page/widgets/search_recipes_dialog.dart';
+import 'package:one_trip/widgets/confirm_dialog.dart';
+import 'package:one_trip/widgets/ingredient_dialog.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ListPage extends StatefulWidget {
@@ -56,8 +57,8 @@ class _ListPageState extends State<ListPage> {
           }
         }
       },
+      // ignore: avoid_print
       onError: (error) => print("Websocket error: $error"),
-      onDone: () => print("Websocket Done"),
     );
   }
 
@@ -108,15 +109,18 @@ class _ListPageState extends State<ListPage> {
             return ListArea(
               list: _list!,
               onAddOne: () async {
-                String? itemName =
-                    await textEntryDialog(context, "Item Name", "Item");
+                IngredientDetails? details =
+                    await ingredientDialog(context, "", "");
 
-                if (itemName == null || itemName == "") {
+                if (details == null || details.name == "") {
                   return;
                 }
 
-                ListIngredient? newIngredient =
-                    await ListIngredient.create(itemName, _list!.homegroup);
+                ListIngredient? newIngredient = await ListIngredient.create(
+                    _list!.homegroup,
+                    details.name,
+                    details.quantity != "" ? details.quantity : null);
+
                 if (newIngredient == null) {
                   return;
                 }
@@ -288,7 +292,12 @@ class ListArea extends StatelessWidget {
                     foregroundColor: MaterialStatePropertyAll(
                         Theme.of(context).colorScheme.onError),
                   ),
-                  onPressed: () => onClear(),
+                  onPressed: () async {
+                    bool doDelete = await confirmDialog(context, "Clear List");
+                    if (doDelete) {
+                      onClear();
+                    }
+                  },
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [Icon(Icons.delete), Text("Clear List")],

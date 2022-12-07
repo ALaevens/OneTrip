@@ -139,12 +139,15 @@ class _InviteHomegroupDialogState extends State<InviteHomegroupDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
+                    style: negativeButtonStyle(context),
                     onPressed: () => Navigator.pop(context),
                     child: const Text("Cancel"),
                   ),
                   ElevatedButton(
-                      onPressed: () => Navigator.pop(context, selectedIDs),
-                      child: const Text("Done")),
+                    style: positiveButtonStyle(context),
+                    onPressed: () => Navigator.pop(context, selectedIDs),
+                    child: const Text("Done"),
+                  ),
                 ],
               ),
             )
